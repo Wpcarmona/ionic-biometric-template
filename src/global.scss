@@ -35,3 +35,13 @@
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import '@ionic/angular/css/palettes/dark.system.css';
+
+html, body {
+    background-color: #ffffff !important; /* Color de fondo blanco */
+    color: #000000; /* Color del texto */
+  }
+  
+  ion-app {
+    background-color: #ffffff !important; /* Asegúrate de que el ion-app también tenga fondo blanco */
+  }
+  

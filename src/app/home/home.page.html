@@ -17,14 +17,23 @@
       <button expand="block" (click)="login()">Iniciar Sesión</button>
     </div>
 
-    <div class="button-container">
-      <button expand="block" id="biometric-btn" (click)="authenticateWithBiometrics()">
-        {{ biometricLabel }}
-      </button>
-      <div>
-        <p>{{ textBiometric }}</p>
+    @if (isBiometricRegistered) {
+      <div class="button-container">
+        <button expand="block" id="biometric-btn" (click)="authenticateWithBiometrics()">
+          {{ biometricLabel }}
+        </button>
+        <div>
+          <p>{{ textBiometric }}</p>
+        </div>
       </div>
-    </div>
+    }
+    
   </div>
+
+  <ion-loading
+    [isOpen]="isLoading"
+    message="Iniciando sesión..."
+    spinner="crescent">
+  </ion-loading>
 
 </ion-content>

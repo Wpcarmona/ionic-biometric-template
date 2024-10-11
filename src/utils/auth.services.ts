@@ -1,57 +1,37 @@
 // auth.service.ts
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http'; // Asegúrate de tener importado HttpClient
-import { NativeBiometric } from 'capacitor-native-biometric';
-import { Observable } from 'rxjs';
+import axios from 'axios';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private serverUrl = 'https://backend-cinema-ldnr.onrender.com/api/auth/login'; // URL de tu API
+  private serverUrl = 'https://backend-cinema-ldnr.onrender.com/cinema/auth/login'; // URL de tu API
 
-  constructor(private http: HttpClient) {} // Inyectar HttpClient
+  constructor() {} 
 
-  async performBiometricVerification(): Promise<boolean> {
-    const result = await NativeBiometric.isAvailable();
-
-    if (!result.isAvailable) return false;
-
-    const verified = await NativeBiometric.verifyIdentity({
-      reason: 'For easy log in',
-      title: 'Log in',
-      subtitle: 'Authenticate using biometrics',
-      description: 'Please authenticate to access your account',
-    })
-      .then(() => true)
-      .catch(() => false);
-
-    return verified;
-  }
-
-  async saveCredentials(email: string, password: string) {
-    await NativeBiometric.setCredentials({
-      username:email,
-      password:password,
-      server: this.serverUrl,
+  login(email: string, password: string): Promise<string> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const response = await axios.post(this.serverUrl, { email, password });
+  
+        const { header, body } = response.data;
+        if (header[0].error === 'NO ERROR' && header[0].code === 200) {
+          const token = header[0].token;
+          const user = body[0];
+  
+          // Almacena el token y los datos del usuario en localStorage
+          localStorage.setItem('token', token);
+          localStorage.setItem('user', JSON.stringify(user));
+  
+          // Devuelve el uid al resolver la promesa
+          resolve(user.uid); 
+        } else {
+          reject('Error al iniciar sesión');
+        }
+      } catch (error) {
+        reject('El email o la contraseña son incorrectos.');
+      }
     });
   }
-
-  async deleteCredentials(server:string) {
-    await NativeBiometric.deleteCredentials({
-      server: this.serverUrl,
-    });
-  }
-
-  async getCredentials(server:string) {
-    const credentials = await NativeBiometric.getCredentials({
-      server: this.serverUrl,
-    });
-    return credentials;
-  }
-
-  // Método para iniciar sesión a través de la API
-  login(email: string, password: string): Observable<any> {
-    return this.http.post(this.serverUrl, { email, password });
-  }
-}
+}  
